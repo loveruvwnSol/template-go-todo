@@ -9,7 +9,7 @@ export type Todo = {
 
 export const Home = () => {
   const [todo, setTodo] = useState<Todo[]>([]);
-  const [id, setId] = useState<number>(2);
+  const [id, setId] = useState<string>();
   const [title, setTitle] = useState<string>("");
 
   useEffect(() => {
@@ -17,22 +17,26 @@ export const Home = () => {
       const r = await fetch("http://localhost:8080/todo");
       const data = await r.json();
       setTodo(data);
+      setId(JSON.stringify(todo.length + 1));
     })();
-  }, []);
+  }, [todo]);
 
   const handleSubmit = async (event: { preventDefault: () => void }) => {
-    setTitle(title);
-    event.preventDefault();
-    const data = { id, title };
+    if (title.match(/\S/g)) {
+      setTitle(title);
+      event.preventDefault();
+      const data = { id, title };
 
-    const r = await fetch("http://localhost:8080/todo", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
-    const d = await r.json();
-    console.dir(d);
-    console.log(title);
-    setId(id + 1);
+      const r = await fetch("http://localhost:8080/todo", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+      const d = await r.json();
+      console.dir(d);
+      setTitle("");
+    } else {
+      alert("please input todo");
+    }
   };
 
   return (
