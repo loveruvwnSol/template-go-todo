@@ -3,7 +3,7 @@ import { Box, Input, Button } from "@chakra-ui/react";
 import { TableContents } from "../organisms/TableContents";
 
 export type Todo = {
-  id: number;
+  id: string;
   title: string;
 };
 
@@ -13,13 +13,21 @@ export const Home = () => {
   const [title, setTitle] = useState<string>("");
 
   useEffect(() => {
-    (async () => {
-      const r = await fetch("http://localhost:8080/todo");
-      const data = await r.json();
-      setTodo(data);
-      setId(JSON.stringify(todo.length + 1));
-    })();
-  }, [todo]);
+    fetchTodo();
+  }, []);
+
+  const fetchTodo = async () => {
+    const r = await fetch("http://localhost:8080/todo");
+    const data = await r.json();
+    setTodo(data);
+    console.log(todo);
+    if (data.length) {
+        setId((Number(data[data.length - 1].id) + 1).toString());
+        return;
+    }
+    setId((1).toString());
+    
+  };
 
   const handleSubmit = async (event: { preventDefault: () => void }) => {
     if (title.match(/\S/g)) {
@@ -31,11 +39,10 @@ export const Home = () => {
         method: "POST",
         body: JSON.stringify(data),
       });
-      const d = await r.json();
-      console.dir(d);
       setTitle("");
+      await fetchTodo();
     } else {
-      alert("please input todo");
+      alert("please input todo text");
     }
   };
 
@@ -49,11 +56,11 @@ export const Home = () => {
           onChange={(e) => setTitle(e.target.value)}
         />
         <Button ml={2} onClick={handleSubmit}>
-          send
+          Add
         </Button>
       </Box>
 
-      <TableContents todo={todo} />
+      <TableContents todo={todo} fetchTodo={fetchTodo} />
     </Box>
   );
 };
