@@ -8,16 +8,15 @@ import (
 )
 
 type todo struct {
-	ID    float64 `json:"id"`
-	Title string  `json:"title"`
+	ID    string `json:"id"`
+	Title string `json:"title"`
 }
 
-var todos = []todo{
-	{ID: 1, Title: "first todo"},
-}
+var todos = []todo{}
 
 func main() {
 	router := gin.Default()
+	router.POST("/todo/:id", deleteTodoByID)
 	router.GET("/todo", getTodo)
 	router.POST("/todo", postTodo)
 
@@ -48,4 +47,22 @@ func postTodo(c *gin.Context) {
 
 	todos = append(todos, newTodoItem)
 	c.IndentedJSON(http.StatusCreated, newTodoItem)
+}
+
+func deleteTodoByID(c *gin.Context) {
+	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+	c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+	c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+	c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+
+	id := c.Param("id")
+	results := []todo{}
+	for _, a := range todos {
+		if a.ID != id {
+			results = append(results, a)
+		}
+	}
+	todos = results
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "deleted"})
+	fmt.Println(id)
 }

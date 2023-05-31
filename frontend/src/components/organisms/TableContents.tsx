@@ -14,13 +14,26 @@ import { BiTrash } from "react-icons/bi";
 
 type TableContentsProps = {
   todo: Todo[];
+  fetchTodo: () => void;
 };
 
-export const TableContents: React.FC<TableContentsProps> = ({ todo }) => {
+export const TableContents: React.FC<TableContentsProps> = ({
+  todo,
+  fetchTodo,
+}) => {
+
+  const deleteTodo = async (id: string) => {
+    console.log(id);
+    const r = await fetch("http://localhost:8080/todo/" + id, {
+      method: "POST",
+    });
+    fetchTodo();
+  };
+
   return (
     <TableContainer mt={10} ml={44} mr={44}>
       <Table variant="simple">
-        <TableCaption>Imperial to metric conversion factors</TableCaption>
+        <TableCaption>React + go todo app</TableCaption>
         <Thead>
           <Tr>
             <Th>ID</Th>
@@ -29,15 +42,21 @@ export const TableContents: React.FC<TableContentsProps> = ({ todo }) => {
           </Tr>
         </Thead>
         <Tbody>
-          {todo.map((e, idx) => (
-            <Tr key={idx}>
-              <Td>{e.id}</Td>
-              <Td>{e.title}</Td>
-              <Td isNumeric>
-                <IconButton icon={<BiTrash />} aria-label={""} />
-              </Td>
-            </Tr>
-          ))}
+          {todo.map((e, idx) => {
+            return (
+              <Tr key={idx}>
+                <Td>{e.id}</Td>
+                <Td>{e.title}</Td>
+                <Td isNumeric>
+                  <IconButton
+                    icon={<BiTrash />}
+                    aria-label={""}
+                    onClick={() => deleteTodo(e.id)}
+                  />
+                </Td>
+              </Tr>
+            );
+          })}
         </Tbody>
       </Table>
     </TableContainer>
