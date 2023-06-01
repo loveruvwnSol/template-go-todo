@@ -22,11 +22,10 @@ export const Home = () => {
     setTodo(data);
     console.log(todo);
     if (data.length) {
-        setId((Number(data[data.length - 1].id) + 1).toString());
-        return;
+      setId((Number(data[data.length - 1].id) + 1).toString());
+      return;
     }
     setId((1).toString());
-    
   };
 
   const handleSubmit = async (event: { preventDefault: () => void }) => {
@@ -52,6 +51,7 @@ export const Home = () => {
         <Input
           type="text"
           w={"2xl"}
+          placeholder="Make your todo !"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
