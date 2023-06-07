@@ -1,4 +1,5 @@
 import {
+  Text,
   TableContainer,
   Table,
   TableCaption,
@@ -8,9 +9,12 @@ import {
   Tbody,
   Td,
   IconButton,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { Todo } from "../templates/Home";
-import { BiTrash } from "react-icons/bi";
+import { BiTrash, BiPencil } from "react-icons/bi";
+import { useState } from "react";
+import { EditModal } from "../molecules/EditModal";
 
 type TableContentsProps = {
   todo: Todo[];
@@ -21,9 +25,17 @@ export const TableContents: React.FC<TableContentsProps> = ({
   todo,
   fetchTodo,
 }) => {
+  const [id, setId] = useState<string>("");
+  const [title, setTitle] = useState<string>("");
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const openModal = (id: string, title: string) => {
+    setId(id);
+    setTitle(title);
+    onOpen();
+  };
 
   const deleteTodo = async (id: string) => {
-    console.log(id);
     const r = await fetch("http://localhost:8080/todo/" + id, {
       method: "POST",
     });
@@ -38,6 +50,7 @@ export const TableContents: React.FC<TableContentsProps> = ({
           <Tr>
             <Th>ID</Th>
             <Th>Title</Th>
+            <Th isNumeric>Edit</Th>
             <Th isNumeric>Delete</Th>
           </Tr>
         </Thead>
@@ -46,7 +59,18 @@ export const TableContents: React.FC<TableContentsProps> = ({
             return (
               <Tr key={idx}>
                 <Td>{e.id}</Td>
-                <Td>{e.title}</Td>
+                <Td>
+                  <Text>{e.title}</Text>
+                </Td>
+                <Td isNumeric>
+                  <IconButton
+                    bg={"green.300"}
+                    _hover={{ bg: "green.400" }}
+                    icon={<BiPencil />}
+                    aria-label={""}
+                    onClick={() => openModal(e.id, e.title)}
+                  />
+                </Td>
                 <Td isNumeric>
                   <IconButton
                     icon={<BiTrash />}
@@ -59,6 +83,13 @@ export const TableContents: React.FC<TableContentsProps> = ({
           })}
         </Tbody>
       </Table>
+      <EditModal
+        isOpen={isOpen}
+        onClose={onClose}
+        id={id}
+        title={title}
+        fetchTodo={fetchTodo}
+      />
     </TableContainer>
   );
 };
